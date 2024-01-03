@@ -1,9 +1,9 @@
 module Part3.Tasks where
 
 --import Data.Map as Map
-import Data.List (nub, groupBy, sortBy, head, tail, delete)
+import Data.List (nub, groupBy, group, sort, head, tail, delete)
 import Util (notImplementedYet)
-import Data.Ord (comparing)
+import Data.Char(digitToInt)
 
 -- Функция finc принимает на вход функцию f и число n и возвращает список чисел [f(n), f(n + 1), ...]
 finc :: (Int -> a) -> Int -> [a]
@@ -15,7 +15,8 @@ ff f x = x : ff f (f x)
 
 -- Дан список чисел. Вернуть самую часто встречающуюся *цифру* в этих числах (если таковых несколько -- вернуть любую)
 mostFreq :: [Int] -> Int
-mostFreq  = notImplementedYet
+mostFreq nums = digitToInt $ snd $ foldr (\ pair1 pair2 -> if fst pair1 >= fst pair2 then pair1 else pair2) (head groupedNums) groupedNums
+                where groupedNums = (map (\ l -> (length l, head l)) (group (sort (concat (map show nums)))))
 
 -- Дан список lst. Вернуть список элементов из lst без повторений, порядок может быть произвольным.
 uniq :: (Eq a) => [a] -> [a]
