@@ -15,8 +15,11 @@ ff f x = x : ff f (f x)
 
 -- Дан список чисел. Вернуть самую часто встречающуюся *цифру* в этих числах (если таковых несколько -- вернуть любую)
 mostFreq :: [Int] -> Int
-mostFreq nums = digitToInt $ snd $ foldr (\ pair1 pair2 -> if fst pair1 >= fst pair2 then pair1 else pair2) (head groupedNums) groupedNums
-                where groupedNums = (map (\ l -> (length l, head l)) (group (sort (concat (map show nums)))))
+mostFreq nums = digitToInt $ snd $ foldr comparePair (head groupedNums) groupedNums
+                where groupedNums = map (\ l -> (length l, head l)) sortedNums
+                      sortedNums = group $ sort $ concat $ map show nums
+                      comparePair pair1 pair2 = if fst pair1 >= fst pair2 then pair1 else pair2
+                      
 
 -- Дан список lst. Вернуть список элементов из lst без повторений, порядок может быть произвольным.
 uniq :: (Eq a) => [a] -> [a]
