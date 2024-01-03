@@ -1,7 +1,9 @@
 module Part3.Tasks where
 
-import Data.List (nub, groupBy)
+--import Data.Map as Map
+import Data.List (nub, groupBy, sortBy, head, tail, delete)
 import Util (notImplementedYet)
+import Data.Ord (comparing)
 
 -- Функция finc принимает на вход функцию f и число n и возвращает список чисел [f(n), f(n + 1), ...]
 finc :: (Int -> a) -> Int -> [a]
@@ -26,5 +28,24 @@ getUniq res [] = res
 -- значению результата применения F к элементам Lst ставит в соответствие список элементов Lst,
 -- приводящих к этому результату. Результат следует представить в виде списка пар.
 grokBy :: (Eq k) => (a -> k) -> [a] -> [(k, [a])]
-grokBy f l = [(x,y) | x <- nub (map f l), y <- groupBy (\a b -> f a == f b) l]
+grokBy f l = map (\x -> (fst . head $ x, map snd x)) $ groupBy (\ a b -> fst a == fst b) $ notOrderSort res [] uniqFres res
+             where res = [((f y), y) | y <- l]
+                   uniqFres = nub $ map f l
 
+-- сортировка, так как не указано что k Ordered, то не знаю как без костылей все отсортировать
+notOrderSort (l:ls) res (fm:fmeans) hold = if fst l == fm 
+                                     then notOrderSort ls (res ++ [l]) (fm:fmeans) hold
+                                     else notOrderSort ls res (fm:fmeans) hold
+notOrderSort [] res fmeans hold = if length fmeans <= 1 
+                                  then res 
+                                  else notOrderSort hold res (tail fmeans) hold
+
+-- если бы k был ordered....
+-- grokBy f l = toList $ createDict f l Map.empty
+-- 
+-- createDict f [] d = d
+-- createDict f (l:ls) d = if (member res d) == True
+--                         then createDict f ls (update (\ el -> if length el /= 0 then Just (l:el) else Nothing) res d)
+--                         else createDict f ls (insert res [l] d)
+--                         where 
+--                             res = f l
