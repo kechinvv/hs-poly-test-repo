@@ -6,34 +6,29 @@ import Debug.Trace
 to2Pi x = if x >= 2*pi 
           then to2Pi (x - 2*pi) 
           else 
-              if x <= -2*pi 
+              if x < 0 
               then to2Pi (x + 2*pi) 
               else x
 
+eps = 0.0000001
 -- синус числа (формула Тейлора)
 mySin :: Double -> Double
-mySin x = getSin x' x' (x'*x'*x') 1 6 0.0000001 x'
+mySin x = tailor x' x' (x'*x'*x') 1 6 eps x' (\ f nk -> (f*(2*nk)*(2*nk+1)))
             where x' = to2Pi x
 
 -- getSin res s nx k f e x | trace ("getSin res=" ++ show res ++ " x=" ++ show x ++ " nx=" ++ show nx ++ " s=" ++ show s ++ " k=" ++ show k ++ " f=" ++ show f) False = undefined
-
-getSin res s nx k f e x = if abs s < e 
-                          then res
-                          else getSin (res + ns) ns (nx*x*x) nk (f*(2*nk)*(2*nk+1)) e x
-                              where ns = ((fromIntegral (myPow (-1) k) ) * nx) / fromIntegral f
-                                    nk = k + 1
-              
-
+        
 -- косинус числа (формула Тейлора)
 myCos :: Double -> Double
-myCos x = getCos 1 1 (x'*x') 1 2 0.0000001 x'
+myCos x = tailor 1 1 (x'*x') 1 2 eps x' (\ f nk-> (f*(2*nk)*(2*nk-1)))
             where x' = to2Pi x
 
-getCos res s nx k f e x = if abs s < e 
-                          then res 
-                          else getCos (res + ns) ns (nx*x*x) nk (f*(2*nk)*(2*nk-1)) e x
-                              where ns = ((fromIntegral (myPow (-1) k) ) * nx) / fromIntegral f
-                                    nk = k + 1
+tailor:: Double -> Double -> Double -> Integer -> Integer -> Double -> Double -> (Integer -> Integer -> Integer) -> Double
+tailor res s num_x k f e x factorial = if abs s < e 
+                                       then res 
+                                       else tailor (res + ns) ns (num_x*x*x) nk (factorial f nk) e x factorial
+                                           where ns = ((fromIntegral (myPow (-1) k) ) * num_x) / fromIntegral f
+                                                 nk = k + 1
 
 -- наибольший общий делитель двух чисел
 myGCD :: Integer -> Integer -> Integer
