@@ -34,7 +34,6 @@ instance (Eq a) => Eq (ReverseList a) where
     (==) (xs :< x) (ys :< y) = (x == y) && (xs == ys)
     (==) REmpty REmpty = True
     (==) _ _ = False
-    (/=) a b = not $ (==) a b
     
 instance Semigroup (ReverseList a) where
     REmpty <> b = b
