@@ -36,7 +36,6 @@ grokBy f l = map (\x -> (fst . head $ x, map snd x)) $ groupBy (\ a b -> fst a =
              where res = [((f y), y) | y <- l]
                    uniqFres = nub $ map f l
 
--- сортировка, так как не указано что k Ordered, то не знаю как без костылей все отсортировать
 notOrderSort (l:ls) res (fm:fmeans) hold = if fst l == fm 
                                      then notOrderSort ls (res ++ [l]) (fm:fmeans) hold
                                      else notOrderSort ls res (fm:fmeans) hold

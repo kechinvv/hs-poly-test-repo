@@ -27,9 +27,21 @@ class Matrix mx where
        rows :: mx -> Int
        cols :: mx -> Int
 
+       determinant :: mx -> Int
+       determinant m = if (rows m) /= (cols m) 
+                       then error "width != heigh" 
+                       else myDeterminant (rows m) $ toListForm m
+                            where myDeterminant 1 m = getEl 0 0 m
+                                  myDeterminant 2 m = (getEl 0 0 m) * (getEl 1 1 m) - (getEl 1 0 m) * (getEl 0 1 m)
+                                  myDeterminant h m = sum [ ((-1)^j)*(getEl 0 j m)*(myDeterminant (h-1) (minor j m)) | j <- [0..h-1] ]
+                                  minor j m = Data.List.map (deleteFromRaw 0 j []) $ tail $ toListForm m
+                                  deleteFromRaw i j nr r | i == j = nr ++ (tail r)
+                                                         | otherwise = deleteFromRaw (i+1) j (nr ++ [head r]) (tail r)
+
        getEl y x m = findWithDefault 0 (y,x) $ toMapForm m
        multiplyMatrixListInt a b = if cols a == rows b then multiplyM (toMapForm a) (toMapForm b) else error "mult of matrix is impossible"
               where multiplyM x y = [[ sum [ (findWithDefault 0 (l,m) x)*(findWithDefault 0 (m,n) y) | m <- [0..(rows b)-1]] | n <- [0..(cols b)-1] ] | l <- [0..(rows a)-1]]
+
 -- Определите экземпляры данного класса для:
 --  * числа (считается матрицей 1x1)
 --  * списка списков чисел
@@ -93,5 +105,5 @@ instance Matrix (SparseMatrix Int) where
 -- multiplyMatrix :: Matrix m => m -> m -> m
 -- multiplyMatrix = notImplementedYet
 -- Определитель матрицы
-determinant :: Matrix m => m -> Int
-determinant = notImplementedYet
+-- determinant :: Matrix m => m -> Int
+-- determinant m = notImplementedYet
