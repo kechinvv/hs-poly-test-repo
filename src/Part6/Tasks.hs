@@ -18,6 +18,8 @@ data SparseMatrix a = SparseMatrix {
 class Matrix mx where
        toMapForm:: mx -> Map (Int, Int) Int
        toListForm :: mx -> [[Int]]
+       getEl ::  Int -> Int -> mx -> Int
+
        eye :: Int -> mx
        zero :: Int -> Int -> mx
        multiplyMatrix :: mx -> mx -> mx
@@ -25,8 +27,9 @@ class Matrix mx where
        rows :: mx -> Int
        cols :: mx -> Int
 
+       getEl y x m = findWithDefault 0 (y,x) $ toMapForm m
        multiplyMatrixListInt a b = if cols a == rows b then multiplyM (toMapForm a) (toMapForm b) else error "mult of matrix is impossible"
-              where multiplyM x y = [[ sum [ (findWithDefault (-1) (l,m) x)*(findWithDefault (-1) (m,n) y) | m <- [0..(rows b)-1]] | n <- [0..(cols b)-1] ] | l <- [0..(rows a)-1]]
+              where multiplyM x y = [[ sum [ (findWithDefault 0 (l,m) x)*(findWithDefault 0 (m,n) y) | m <- [0..(rows b)-1]] | n <- [0..(cols b)-1] ] | l <- [0..(rows a)-1]]
 -- Определите экземпляры данного класса для:
 --  * числа (считается матрицей 1x1)
 --  * списка списков чисел
@@ -60,18 +63,19 @@ instance Matrix [[Int]] where
        multiplyMatrix a b = multiplyMatrixListInt a b
 
 instance Matrix (SparseMatrix Int) where
-       toMapForm m = toMap 0 0 (sparseMatrixHeight m) ((sparseMatrixWidth m)-1)  (sparseMatrixElements m)
-              where 
-                     toMap y x h w m | y >= h = m
-                                     | x == w = toMap (y+1) 0 h w myInsert
-                                     | otherwise = toMap y (x+1) h w myInsert
-                                     where myInsert = if member (y,x) m then m else Map.insert (y,x) 0 m
+       toMapForm m = sparseMatrixElements m
+       -- toMapForm m = toMap 0 0 (sparseMatrixHeight m) ((sparseMatrixWidth m)-1)  (sparseMatrixElements m)
+       --        where 
+       --               toMap y x h w m | y >= h = m
+       --                               | x == w = toMap (y+1) 0 h w myInsert
+       --                               | otherwise = toMap y (x+1) h w myInsert
+       --                               where myInsert = if member (y,x) m then m else Map.insert (y,x) 0 m
 
        toListForm m = [ [ findWithDefault 0 (hh,ww) mm | ww <- [0..w-1]] | hh <- [0..h-1]]
               where w = sparseMatrixWidth m
                     h = sparseMatrixHeight m
                     mm = sparseMatrixElements m
-
+       
        rows m = sparseMatrixHeight m
        cols m = sparseMatrixWidth m
 
